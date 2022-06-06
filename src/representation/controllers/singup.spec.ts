@@ -2,7 +2,9 @@ import {SingUpController} from './singup'
 import {MissingParamsError} from '../errors/missing-params-error'
 import { InvalidParamsError } from '../errors/invalid-params-error';
 import { EmailValidator } from '../protocols/email-validator';
+import { ServerError } from '../errors/server-error';
 
+//Interface para facilitar o que cada objeto recebe
 interface SutTypes{
     sut: SingUpController,
     emailValidatorStub: EmailValidator
@@ -12,12 +14,18 @@ interface SutTypes{
 //Assim eu posso colocar quantas dependenciar eu quiser e não necessariamente preciso mudar em cada parte
 const makeSut = ():SutTypes =>{
 
+    //Criando uma classe e implementando da interface que foi criada em protocols
     class EmailValidatorStub implements EmailValidator{
         isValid(email:string):boolean{
+            //Retornar ao video
             return true
         }
     }
+
+    //Criando uma variavel recebendo a calsse criado acima especificamente para email
     const emailValidatorStub = new EmailValidatorStub()
+
+    //Injetando dentro da clsse SingUpController , a variavel que recebe da classe EmailValidatorStub
     const sut =  new SingUpController(emailValidatorStub);
     return{
         sut,
@@ -87,6 +95,8 @@ describe('SingUp Controller',() =>{
 
     })
 
+    //Criando teste Especificamente para email , no caso receber se esta valido ou não
+
     test('Should return 400 if an invalid email is provided',()=>{
         const {sut, emailValidatorStub} = makeSut()
         jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
@@ -121,6 +131,31 @@ describe('SingUp Controller',() =>{
         }
     const httpResponse =  sut.handle(httpRequest)
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
+
+    })
+
+    test('Should return 500 if EmailValidator throws',()=>{
+        class EmailValidatorStub implements EmailValidator{
+            isValid(email:string):boolean{
+                throw new Error()
+            }
+        }
+    
+        const emailValidatorStub = new EmailValidatorStub()
+        const sut =  new SingUpController(emailValidatorStub);
+
+        const httpRequest = {
+            body:{
+                name:'any_name',
+                email:'any_email@mail.com',
+                password: 'any_password',
+                passwordConfirmation: 'any_password'
+
+            }
+        }
+    const httpResponse =  sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
 
     })
 })
