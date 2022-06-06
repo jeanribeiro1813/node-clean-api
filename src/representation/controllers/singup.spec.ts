@@ -9,8 +9,10 @@ interface SutTypes{
 }
 
 //Criando uma classe e implementando da interface que foi criada em protocols
+//Fazendo o mesmo esquema de fazer um factor para facilitar a abordagem caso precise utilizar mais de um lugar
 const makeEmailValidator = (): EmailValidator =>{
     class EmailValidatorStub implements EmailValidator{
+        //Validar se o email e valido ou não 
         isValid(email:string):boolean{
             return true
         }
@@ -18,20 +20,20 @@ const makeEmailValidator = (): EmailValidator =>{
     return new EmailValidatorStub
 }
 
-const makeEmailValidatorWithError = (): EmailValidator =>{
-    class EmailValidatorStub implements EmailValidator{
-        isValid(email:string):boolean{
-            throw new Error()
-        }
-    }
-    return new EmailValidatorStub
-}
+
+//Fazendo o mesmo esquema de fazer um factor para facilitar a abordagem caso precise utilizar mais de um lugar
+// const makeEmailValidatorWithError = (): EmailValidator =>{
+//     class EmailValidatorStub implements EmailValidator{
+//         isValid(email:string):boolean{
+//             throw new Error()
+//         }
+//     }
+//     return new EmailValidatorStub
+// }
 
 //Para Evitar qualquer dependencia e ficar mudando um teste por um , o ideal é fazer isso para deixar o codigo mais limpo
 //Assim eu posso colocar quantas dependenciar eu quiser e não necessariamente preciso mudar em cada parte
 const makeSut = ():SutTypes =>{
-
-   
 
     //Criando uma variavel recebendo a calsse criado acima especificamente para email
     const emailValidatorStub =  makeEmailValidator()
@@ -110,6 +112,8 @@ describe('SingUp Controller',() =>{
 
     test('Should return 400 if an invalid email is provided',()=>{
         const {sut, emailValidatorStub} = makeSut()
+        //Utilizando o jst.spyOn , no qual ele vai espionaro objeto emailValidatorStub
+        // No qual vai espionar o metodo "isValid" , mockar o validador, para fazer ele falha , ou seja fazer o teste corretamente em busca do return
         jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
         const httpRequest = {
             body:{
@@ -123,12 +127,15 @@ describe('SingUp Controller',() =>{
         }
     const httpResponse =  sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
+    //Criando um erro para o Invalid Email
     expect(httpResponse.body).toEqual(new InvalidParamsError('email'))
 
     })
 
+    //Forçando o email ser chamado da forma correta
     test('Should call EmailValidator with correct email',()=>{
         const {sut, emailValidatorStub} = makeSut()
+        //Verificando e capturando o email
         const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
         const httpRequest = {
             body:{
@@ -140,15 +147,28 @@ describe('SingUp Controller',() =>{
 
             }
         }
-    const httpResponse =  sut.handle(httpRequest)
+    sut.handle(httpRequest)
+    //Esperando que o metodo receba o email da forma correta , se for diferente @mail.com, dará erro
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
 
     })
 
+    //Teste trazendo erro do servidor
     test('Should return 500 if EmailValidator throws',()=>{
- 
-        const emailValidatorStub = makeEmailValidatorWithError()
-        const sut =  new SingUpController(emailValidatorStub);
+        
+        /* Uma das formas para verificar o erro do Server*/
+        // const emailValidatorStub = makeEmailValidatorWithError() 
+        // const sut =  new SingUpController(emailValidatorStub); 
+
+
+        const {sut, emailValidatorStub} = makeSut()
+
+
+        //Mockar a implementação dele , no qual ele vai ser uma função e vai retornar erro
+        jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(()=>{
+            
+            throw new Error()
+        })
 
         const httpRequest = {
             body:{

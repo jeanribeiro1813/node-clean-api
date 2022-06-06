@@ -1,4 +1,4 @@
-import {MissingParamsError,InvalidParamsError,ServerError} from '../errors'
+import {MissingParamsError,InvalidParamsError} from '../errors'
 import {badRequest,serverError} from '../helpers/http-helpers'
 import { Controller,EmailValidator,HttpRequest, HttpResponse } from '../protocols'
 
@@ -16,23 +16,24 @@ export class SingUpController implements Controller{
     }
     handle(httpRequest: HttpRequest): HttpResponse{
         try{
-        const requiredFields = ['name','email','password','passwordConfirmation']
-    
-        for (const field of requiredFields){
-            if(!httpRequest.body[field]){
-                return badRequest(new MissingParamsError(field))
-    
+        
+            const requiredFields = ['name','email','password','passwordConfirmation']
+        
+            for (const field of requiredFields){
+                if(!httpRequest.body[field]){
+                    return badRequest(new MissingParamsError(field))
+        
+            }
         }
-    }
 
-    //Pegando o email do bodu e validando se esta correto
-    const isValid = this.emailValidator.isValid(httpRequest.body.email)
-    if(!isValid){
-        //Erro criado para o email
-        return badRequest(new InvalidParamsError('email'))
-    }
+        //Pegando o email do body e validando se esta correto
+        const isValid = this.emailValidator.isValid(httpRequest.body.email)
+        if(!isValid){
+            //Erro criado para o email
+            return badRequest(new InvalidParamsError('email'))
+        }
 
-    } catch(error){
+        } catch(error){
 
         return serverError();
 
