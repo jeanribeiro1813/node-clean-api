@@ -8,20 +8,33 @@ interface SutTypes{
     emailValidatorStub: EmailValidator
 }
 
+//Criando uma classe e implementando da interface que foi criada em protocols
+const makeEmailValidator = (): EmailValidator =>{
+    class EmailValidatorStub implements EmailValidator{
+        isValid(email:string):boolean{
+            return true
+        }
+    }
+    return new EmailValidatorStub
+}
+
+const makeEmailValidatorWithError = (): EmailValidator =>{
+    class EmailValidatorStub implements EmailValidator{
+        isValid(email:string):boolean{
+            throw new Error()
+        }
+    }
+    return new EmailValidatorStub
+}
+
 //Para Evitar qualquer dependencia e ficar mudando um teste por um , o ideal é fazer isso para deixar o codigo mais limpo
 //Assim eu posso colocar quantas dependenciar eu quiser e não necessariamente preciso mudar em cada parte
 const makeSut = ():SutTypes =>{
 
-    //Criando uma classe e implementando da interface que foi criada em protocols
-    class EmailValidatorStub implements EmailValidator{
-        isValid(email:string):boolean{
-            //Retornar ao video
-            return true
-        }
-    }
+   
 
     //Criando uma variavel recebendo a calsse criado acima especificamente para email
-    const emailValidatorStub = new EmailValidatorStub()
+    const emailValidatorStub =  makeEmailValidator()
 
     //Injetando dentro da clsse SingUpController , a variavel que recebe da classe EmailValidatorStub
     const sut =  new SingUpController(emailValidatorStub);
@@ -133,13 +146,8 @@ describe('SingUp Controller',() =>{
     })
 
     test('Should return 500 if EmailValidator throws',()=>{
-        class EmailValidatorStub implements EmailValidator{
-            isValid(email:string):boolean{
-                throw new Error()
-            }
-        }
-    
-        const emailValidatorStub = new EmailValidatorStub()
+ 
+        const emailValidatorStub = makeEmailValidatorWithError()
         const sut =  new SingUpController(emailValidatorStub);
 
         const httpRequest = {
