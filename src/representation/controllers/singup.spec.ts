@@ -1,8 +1,6 @@
 import {SingUpController} from './singup'
-import {MissingParamsError} from '../errors/missing-params-error'
-import { InvalidParamsError } from '../errors/invalid-params-error';
+import { InvalidParamsError,MissingParamsError, ServerError} from '../errors';
 import { EmailValidator } from '../protocols/email-validator';
-import { ServerError } from '../errors/server-error';
 
 //Interface para facilitar o que cada objeto recebe
 interface SutTypes{
