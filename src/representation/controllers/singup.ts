@@ -1,3 +1,4 @@
+import { AddAccount } from '../../domain/usercases/add-account'
 import {MissingParamsError,InvalidParamsError} from '../errors'
 import {badRequest,serverError} from '../helpers/http-helpers'
 import { Controller,EmailValidator,HttpRequest, HttpResponse } from '../protocols'
@@ -7,11 +8,14 @@ export class SingUpController implements Controller{
 
     //Criando uma variavel private , pois só vai pode mexer dentro da classe
     private readonly emailValidator:EmailValidator
+    private readonly addAccount:AddAccount
+
 
     //Fazendo o constructor para injetar no teste
     //No qual recebe o emailValidator
-    constructor(emailValidator:EmailValidator){
+    constructor(emailValidator:EmailValidator , addAccount: AddAccount){
         this.emailValidator = emailValidator
+        this.addAccount = addAccount
 
     }
     handle(httpRequest: HttpRequest): HttpResponse{
@@ -27,7 +31,7 @@ export class SingUpController implements Controller{
         }
 
 
-        const {email, password, passwordConfirmation} = httpRequest.body
+        const {name,email, password, passwordConfirmation} = httpRequest.body
 
         if(password !== passwordConfirmation){
             return badRequest( new InvalidParamsError('passwordConfirmation'))
@@ -39,6 +43,12 @@ export class SingUpController implements Controller{
             //Erro criado para o email
             return badRequest(new InvalidParamsError('email'))
         }
+
+        this.addAccount.add({
+            name,
+            email,
+            password,
+        })
 
         } catch(error){
 
