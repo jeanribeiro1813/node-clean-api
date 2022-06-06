@@ -1,7 +1,6 @@
-import { AddAccount } from '../../domain/usercases/add-account'
-import {MissingParamsError,InvalidParamsError} from '../errors'
-import {badRequest,serverError} from '../helpers/http-helpers'
-import { Controller,EmailValidator,HttpRequest, HttpResponse } from '../protocols'
+import {MissingParamsError,InvalidParamsError} from '../../errors'
+import {badRequest,serverError} from '../../helpers/http-helpers'
+import { Controller,HttpRequest, HttpResponse, EmailValidator, AddAccount } from '../singup/singup-protocols'
 
 
 export class SingUpController implements Controller{
