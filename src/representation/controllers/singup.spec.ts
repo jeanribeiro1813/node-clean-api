@@ -1,12 +1,11 @@
 import {SingUpController} from './singup'
 import { InvalidParamsError, MissingParamsError, ServerError} from '../errors';
 import { EmailValidator } from '../protocols';
+import { AccountModel } from '../../domain/models/account';
+import { AddAccountModel, AddAccount} from '../../domain/usercases/add-account'
 
-//Interface para facilitar o que cada objeto recebe
-interface SutTypes{
-    sut: SingUpController,
-    emailValidatorStub: EmailValidator
-}
+
+
 
 //Criando uma classe e implementando da interface que foi criada em protocols
 //Fazendo o mesmo esquema de fazer um factor para facilitar a abordagem caso precise utilizar mais de um lugar
@@ -20,6 +19,28 @@ const makeEmailValidator = (): EmailValidator =>{
     return new EmailValidatorStub
 }
 
+const makeAddAccount = (): AddAccount =>{
+    class AddAccountStub implements AddAccount{
+        //Validar se o email e valido ou não 
+        add(account:AddAccountModel):AccountModel{
+            const fakeAccount = {
+                id: 'valid_id',
+                name: 'valid_name',
+                email: 'valid_email@mail.com',
+                password: 'valid_password'
+            }
+            return fakeAccount;
+        }
+    }
+    return new AddAccountStub
+}
+
+//Interface para facilitar o que cada objeto recebe
+interface SutTypes{
+    sut: SingUpController,
+    emailValidatorStub: EmailValidator,
+    addAccountStub:AddAccount
+}
 
 //Fazendo o mesmo esquema de fazer um factor para facilitar a abordagem caso precise utilizar mais de um lugar
 // const makeEmailValidatorWithError = (): EmailValidator =>{
@@ -38,11 +59,14 @@ const makeSut = ():SutTypes =>{
     //Criando uma variavel recebendo a calsse criado acima especificamente para email
     const emailValidatorStub =  makeEmailValidator()
 
+    const addAccountStub = makeAddAccount()
+
     //Injetando dentro da clsse SingUpController , a variavel que recebe da classe EmailValidatorStub
-    const sut =  new SingUpController(emailValidatorStub);
+    const sut =  new SingUpController(emailValidatorStub, addAccountStub);
     return{
         sut,
-        emailValidatorStub
+        emailValidatorStub,
+        addAccountStub
     }
 }
 
@@ -202,4 +226,28 @@ describe('SingUp Controller',() =>{
     expect(httpResponse.body).toEqual(new ServerError())
 
     })
+
+    test('Should call AddAccount with correct values',()=>{
+        const {sut, addAccountStub} = makeSut()
+        const addSpy = jest.spyOn(addAccountStub, 'add')
+        const httpRequest = {
+            body:{
+                name:'any_name',
+                //Dando mais semantica para o teste , assim dando mais visu do que eu estou testando
+                email:'any_email@mail.com',
+                password: 'any_password',
+                passwordConfirmation: 'any_password'
+
+            }
+        }
+    sut.handle(httpRequest)
+    //Esperando que o metodo receba esses parametros da forma correta
+    expect(addSpy).toHaveBeenCalledWith({
+        name:'any_name',
+        email:'any_email@mail.com',
+        password: 'any_password',
+    })
+
+    })
+
 })
