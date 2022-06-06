@@ -3,7 +3,7 @@ import { InvalidParamsError, MissingParamsError, ServerError} from '../../errors
 import { EmailValidator,AccountModel,AddAccountModel, AddAccount } from '../singup/singup-protocols';
 
 
-
+//Lembrando que só mocka quando for caso negativo pois estou forçando que ele tem que receber true
 
 //Criando uma classe e implementando da interface que foi criada em protocols
 //Fazendo o mesmo esquema de fazer um factor para facilitar a abordagem caso precise utilizar mais de um lugar
@@ -172,7 +172,7 @@ describe('SingUp Controller',() =>{
 
     })
 
-    //Forçando o email ser chamado da forma correta
+    //Forçando o email ser chamado da forma correta, chamando a Rota
     test('Should call EmailValidator with correct email',()=>{
         const {sut, emailValidatorStub} = makeSut()
         //Verificando e capturando o email
@@ -271,6 +271,32 @@ describe('SingUp Controller',() =>{
     const httpResponse =  sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
+
+    })
+
+    //Caso de Sucesso
+    test('Should return 200 if valid data is provided',()=>{
+        const {sut} = makeSut()
+        //Utilizando o jst.spyOn , no qual ele vai espionaro objeto emailValidatorStub
+        // No qual vai espionar o metodo "isValid" , mockar o validador, para fazer ele falha , ou seja fazer o teste corretamente em busca do return
+        const httpRequest = {
+            body:{
+                name:'valid_name',
+                email:'valid_email@mail.com',
+                password: 'valid_password',
+                passwordConfirmation: 'valid_password'
+
+            }
+        }
+    const httpResponse =  sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    //Criando um erro para o Invalid Email
+    expect(httpResponse.body).toEqual({
+        id:'valid_id',
+        name:'valid_name',
+        email:'valid_email@mail.com',
+        password: 'valid_password',
+    })
 
     })
 
