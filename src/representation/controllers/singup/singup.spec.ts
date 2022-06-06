@@ -193,7 +193,7 @@ describe('SingUp Controller',() =>{
 
     })
 
-    //Teste trazendo erro do servidor
+    //Teste trazendo erro do servidor , retorno da exeção
     test('Should return 500 if EmailValidator throws',()=>{
         
         /* Uma das formas para verificar o erro do Server*/
@@ -225,6 +225,7 @@ describe('SingUp Controller',() =>{
 
     })
 
+    //Adicionar Conta ,Chamar a Rota
     test('Should call AddAccount with correct values',()=>{
         const {sut, addAccountStub} = makeSut()
         const addSpy = jest.spyOn(addAccountStub, 'add')
@@ -245,6 +246,31 @@ describe('SingUp Controller',() =>{
         email:'any_email@mail.com',
         password: 'any_password',
     })
+
+    })
+
+    //Retornar a Exeção da Conta
+    test('Should return 500 if AddAccount throws',()=>{
+ 
+        const {sut, addAccountStub} = makeSut()
+
+        jest.spyOn(addAccountStub, 'add').mockImplementationOnce(()=>{
+            
+            throw new Error()
+        })
+
+        const httpRequest = {
+            body:{
+                name:'any_name',
+                email:'any_email@mail.com',
+                password: 'any_password',
+                passwordConfirmation: 'any_password'
+
+            }
+        }
+    const httpResponse =  sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
 
     })
 
