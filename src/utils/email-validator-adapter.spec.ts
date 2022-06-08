@@ -8,6 +8,7 @@ jest.mock('validator',()=>({
     }
 }))
 
+//Criando o makeSut para facilitar o que eu quero
 const makeSut = ():EmailValidatorAdapter => {
     return new EmailValidatorAdapter()
 }
