@@ -1,4 +1,5 @@
 import {EmailValidatorAdapter} from './email-validator-adapter'
+//Validator , lib para validar o email
 import validator from 'validator'
 
 jest.mock('validator',()=>({
