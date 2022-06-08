@@ -1,5 +1,7 @@
 //Protocolos Especifico + Genericos
 
+
+//Protocolos Genericos
 export * from '../../protocols'
 
 //Protocolos Especificos

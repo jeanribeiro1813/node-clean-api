@@ -52,8 +52,8 @@ export class SingUpController implements Controller{
         return ok(account)
 
         } catch(error){
-
-        return serverError();
+        console.error(error)
+        return serverError()
 
     }
 }   

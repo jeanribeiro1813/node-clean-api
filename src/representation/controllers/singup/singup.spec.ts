@@ -1,7 +1,6 @@
 import {SingUpController} from './singup'
 import { InvalidParamsError, MissingParamsError, ServerError} from '../../errors';
 import { EmailValidator,AccountModel,AddAccountModel, AddAccount } from '../singup/singup-protocols';
-import { rejects } from 'assert';
 
 
 //Lembrando que só mocka quando for caso negativo pois estou forçando que ele tem que receber true
