@@ -1,6 +1,9 @@
 import { Encrypter, AddAccountModel,AccountModel, AddAccountRepository } from './db-add-accout-protocols';
 import { DbAddAccount } from './db-add-account';
 
+//Responsavel para fazer os teste de Criptografia 
+
+//Esse encrypter é reponsavel para fazer o teste da Criptografia da senha
 
 const makeEncrypter = (): Encrypter =>{
 
